@@ -5,3 +5,4 @@ pyOpenSSL==17.0.0
 PyYAML==3.12
 six==1.11.0
 Werkzeug==2.0.0
+cachelib==0.1.1
