@@ -389,6 +389,26 @@ class audio(_Response):
         self._response['directives'].append(directive)
         return self
 
+    def metadata(self, title, subtitle=None, image=None, background_image_url=None):
+        """Include metadata for the most-recently added AudioItem"""
+        metadata = {}
+        metadata['title'] = title
+        metadata['subtitle'] = subtitle
+        if image is not None:
+            metadata['art'] = {
+                'sources': [
+                    {'url': image}
+                ]
+            }
+        if background_image_url is not None:
+            metadata['backgroundImage'] = {
+               'sources': [
+                   {'url': background_image_url}
+               ]
+            }
+        self._response['directives'][-1]['audioItem']['metadata'] = metadata
+        return self
+
     def _play_directive(self, behavior):
         directive = {}
         directive['type'] = 'AudioPlayer.Play'
