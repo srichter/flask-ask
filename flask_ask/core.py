@@ -522,6 +522,90 @@ class Ask(object):
             return f
         return decorator
 
+    def on_playback_play_command(self, mapping={}, convert={}, default={}):
+        """Decorator routes an PlaybackController.PlayCommandIssued Request to the wrapped function.
+
+        This PlaybackController Request is sent when a "play" or "resume" button is pressed to start or resume playback
+
+        The wrapped view function may accept parameters from the PlaybackController Request.
+        Limited to locale, requestId, timestamp, and type
+
+        """
+        def decorator(f):
+            self._intent_view_funcs['PlaybackController.PlayCommandIssued'] = f
+            self._intent_mappings['PlaybackController.PlayCommandIssued'] = mapping
+            self._intent_converts['PlaybackController.PlayCommandIssued'] = convert
+            self._intent_defaults['PlaybackController.PlayCommandIssued'] = default
+
+            @wraps(f)
+            def wrapper(*args, **kwargs):
+                self._flask_view_func(*args, **kwargs)
+            return f
+        return decorator
+
+    def on_playback_pause_command(self, mapping={}, convert={}, default={}):
+        """Decorator routes an PlaybackController.PauseCommandIssued Request to the wrapped function.
+
+        This PlaybackController Request is sent when a "pause" button is pressed to pause or stop playback
+
+        The wrapped view function may accept parameters from the PlaybackController Request.
+        Limited to locale, requestId, timestamp, and type
+
+        """
+        def decorator(f):
+            self._intent_view_funcs['PlaybackController.PauseCommandIssued'] = f
+            self._intent_mappings['PlaybackController.PauseCommandIssued'] = mapping
+            self._intent_converts['PlaybackController.PauseCommandIssued'] = convert
+            self._intent_defaults['PlaybackController.PauseCommandIssued'] = default
+
+            @wraps(f)
+            def wrapper(*args, **kwargs):
+                self._flask_view_func(*args, **kwargs)
+            return f
+        return decorator
+
+    def on_playback_previous_command(self, mapping={}, convert={}, default={}):
+        """Decorator routes an PlaybackController.PreviousCommandIssued Request to the wrapped function.
+
+        This PlaybackController Request is sent when a "previous" button is pressed to go back to the previous audio item
+
+        The wrapped view function may accept parameters from the PlaybackController Request.
+        Limited to locale, requestId, timestamp, and type
+
+        """
+        def decorator(f):
+            self._intent_view_funcs['PlaybackController.PreviousCommandIssued'] = f
+            self._intent_mappings['PlaybackController.PreviousCommandIssued'] = mapping
+            self._intent_converts['PlaybackController.PreviousCommandIssued'] = convert
+            self._intent_defaults['PlaybackController.PreviousCommandIssued'] = default
+
+            @wraps(f)
+            def wrapper(*args, **kwargs):
+                self._flask_view_func(*args, **kwargs)
+            return f
+        return decorator
+
+    def on_playback_ext_command(self, mapping={}, convert={}, default={}):
+        """Decorator routes an PlaybackController.NextCommandIssued Request to the wrapped function.
+
+        This PlaybackController Request is sent when a "next" button is pressed to skip to the next audio item
+
+        The wrapped view function may accept parameters from the PlaybackController Request.
+        Limited to locale, requestId, timestamp, and type
+
+        """
+        def decorator(f):
+            self._intent_view_funcs['PlaybackController.NextCommandIssued'] = f
+            self._intent_mappings['PlaybackController.NextCommandIssued'] = mapping
+            self._intent_converts['PlaybackController.NextCommandIssued'] = convert
+            self._intent_defaults['PlaybackController.NextCommandIssued'] = default
+
+            @wraps(f)
+            def wrapper(*args, **kwargs):
+                self._flask_view_func(*args, **kwargs)
+            return f
+        return decorator
+
     @property
     def request(self):
         return getattr(_app_ctx_stack.top, '_ask_request', None)
@@ -643,9 +727,9 @@ class Ask(object):
         body = json.dumps(event)
         environ['CONTENT_TYPE'] = 'application/json'
         environ['CONTENT_LENGTH'] = len(body)
-        
+
         PY3 = sys.version_info[0] == 3
-        
+
         if PY3:
             environ['wsgi.input'] = io.StringIO(body)
         else:
@@ -810,6 +894,8 @@ class Ask(object):
             result = self._map_player_request_to_func(self.request.type)()
             # routes to on_playback funcs
             # user can also access state of content.AudioPlayer with current_stream
+        elif 'PlaybackController' in request_type:
+            result = self._map_playback_controller_request_to_func(self.request.type)()
         elif 'Connections.Response' in request_type:
             result = self._map_purchase_request_to_func(self.request.type)()
 
@@ -833,7 +919,7 @@ class Ask(object):
             argspec = inspect.getfullargspec(view_func)
         else:
             argspec = inspect.getargspec(view_func)
-            
+
         arg_names = argspec.args
         arg_values = self._map_params_to_view_args(intent.name, arg_names)
 
@@ -847,6 +933,17 @@ class Ask(object):
         argspec = inspect.getargspec(view_func)
         arg_names = argspec.args
         arg_values = self._map_params_to_view_args(player_request_type, arg_names)
+
+        return partial(view_func, *arg_values)
+
+    def _map_playback_controller_request_to_func(self, playback_controller_request_type):
+        """Provides appropriate parameters to the on_playback command functions."""
+        # calbacks for on_command requests are optional
+        view_func = self._intent_view_funcs.get(playback_controller_request_type, lambda: None)
+
+        argspec = inspect.getargspec(view_func)
+        arg_names = argspec.args
+        arg_values = self._map_params_to_view_args(playback_controller_request_type, arg_names)
 
         return partial(view_func, *arg_values)
 
