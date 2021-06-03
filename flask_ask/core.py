@@ -585,7 +585,7 @@ class Ask(object):
             return f
         return decorator
 
-    def on_playback_ext_command(self, mapping={}, convert={}, default={}):
+    def on_playback_next_command(self, mapping={}, convert={}, default={}):
         """Decorator routes an PlaybackController.NextCommandIssued Request to the wrapped function.
 
         This PlaybackController Request is sent when a "next" button is pressed to skip to the next audio item
