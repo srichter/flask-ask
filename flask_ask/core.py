@@ -914,12 +914,7 @@ class Ask(object):
         else:
             raise NotImplementedError('Intent "{}" not found and no default intent specified.'.format(intent.name))
 
-        PY3 = sys.version_info[0] == 3
-        if PY3:
-            argspec = inspect.getfullargspec(view_func)
-        else:
-            argspec = inspect.getargspec(view_func)
-
+        argspec = inspect.getfullargspec(view_func)
         arg_names = argspec.args
         arg_values = self._map_params_to_view_args(intent.name, arg_names)
 
@@ -930,7 +925,7 @@ class Ask(object):
         # calbacks for on_playback requests are optional
         view_func = self._intent_view_funcs.get(player_request_type, lambda: None)
 
-        argspec = inspect.getargspec(view_func)
+        argspec = inspect.getfullargspec(view_func)
         arg_names = argspec.args
         arg_values = self._map_params_to_view_args(player_request_type, arg_names)
 
@@ -941,7 +936,7 @@ class Ask(object):
         # calbacks for on_command requests are optional
         view_func = self._intent_view_funcs.get(playback_controller_request_type, lambda: None)
 
-        argspec = inspect.getargspec(view_func)
+        argspec = inspect.getfullargspec(view_func)
         arg_names = argspec.args
         arg_values = self._map_params_to_view_args(playback_controller_request_type, arg_names)
 
@@ -949,13 +944,13 @@ class Ask(object):
 
     def _map_purchase_request_to_func(self, purchase_request_type):
         """Provides appropriate parameters to the on_purchase functions."""
-        
+
         if purchase_request_type in self._intent_view_funcs:
             view_func = self._intent_view_funcs[purchase_request_type]
         else:
-            raise NotImplementedError('Request type "{}" not found and no default view specified.'.format(purchase_request_type)) 
+            raise NotImplementedError('Request type "{}" not found and no default view specified.'.format(purchase_request_type))
 
-        argspec = inspect.getargspec(view_func)
+        argspec = inspect.getfullargspec(view_func)
         arg_names = argspec.args
         arg_values = self._map_params_to_view_args(purchase_request_type, arg_names)
 
