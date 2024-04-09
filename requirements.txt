@@ -1,4 +1,4 @@
-aniso8601==1.2.0
+aniso8601==9.0.1
 Flask==2.0.0
 cryptography==2.1.4
 pyOpenSSL==17.0.0
